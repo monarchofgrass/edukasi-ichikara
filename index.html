@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日本語バトル — edu.ichikara.co.id</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;700;900&display=swap');
+
+  :root {
+    --red: #e63946;
+    --red-dark: #9b1e28;
+    --blue: #1d6bf5;
+    --blue-dark: #0d3a8a;
+    --yellow: #f4d03f;
+    --bg: #0a0a0f;
+    --bg2: #12121a;
+    --bg3: #1c1c2e;
+    --surface: #1e1e30;
+    --border: #2e2e4a;
+    --text: #eaeaea;
+    --muted: #888;
+    --green: #2ecc71;
+    --orange: #f39c12;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== STARS BG ===== */
+  .stars-bg {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background: radial-gradient(ellipse at 20% 50%, #0d0025 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, #00001a 0%, transparent 60%),
+                var(--bg);
+  }
+  .stars-bg::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 10% 15%, white 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 80%, white 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 50% 30%, white 0%, transparent 100%),
+      radial-gradient(1px 1px at 70% 60%, white 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 10%, white 0%, transparent 100%),
+      radial-gradient(1px 1px at 15% 55%, white 0%, transparent 100%),
+      radial-gradient(1px 1px at 45% 70%, white 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 75% 40%, white 0%, transparent 100%),
+      radial-gradient(1px 1px at 85% 85%, white 0%, transparent 100%),
+      radial-gradient(1px 1px at 25% 25%, rgba(255,255,255,0.5) 0%, transparent 100%);
+    opacity: 0.6;
+  }
+
+  #root { position: relative; z-index: 1; }
+
+  /* ===== SCREEN BASE ===== */
+  .screen {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 24px;
+  }
+
+  /* ===== LOGO ===== */
+  .logo {
+    font-family: 'Bangers', cursive;
+    font-size: clamp(42px, 8vw, 80px);
+    letter-spacing: 4px;
+    text-align: center;
+    line-height: 1;
+    background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 30px rgba(255,100,100,0.4));
+    margin-bottom: 8px;
+  }
+  .logo-sub {
+    font-size: 14px; color: var(--muted); letter-spacing: 6px;
+    text-transform: uppercase; text-align: center; margin-bottom: 40px;
+  }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    width: 100%; max-width: 480px;
+  }
+  .card h2 {
+    font-size: 20px; font-weight: 900;
+    margin-bottom: 24px; text-align: center;
+    text-transform: uppercase; letter-spacing: 2px;
+  }
+
+  /* ===== INPUTS ===== */
+  .input-group { margin-bottom: 16px; }
+  .input-group label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px; }
+  .input-group input, .input-group select {
+    width: 100%; padding: 12px 16px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text);
+    font-family: 'Nunito', sans-serif; font-size: 15px;
+    transition: border 0.2s;
+  }
+  .input-group input:focus, .input-group select:focus {
+    outline: none; border-color: var(--blue);
+  }
+  .input-group select option { background: var(--bg3); }
+
+  /* ===== BUTTONS ===== */
+  .btn {
+    padding: 14px 28px; border-radius: 10px; font-weight: 900;
+    font-size: 15px; cursor: pointer; border: none;
+    font-family: 'Nunito', sans-serif; letter-spacing: 1px;
+    text-transform: uppercase; transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: linear-gradient(135deg, var(--blue), #5b9cf6); color: white; width: 100%; justify-content: center; }
+  .btn-primary:hover { filter: brightness(1.1); }
+  .btn-danger { background: linear-gradient(135deg, var(--red), #ff6b6b); color: white; width: 100%; justify-content: center; }
+  .btn-danger:hover { filter: brightness(1.1); }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); width: 100%; justify-content: center; }
+  .btn-ghost:hover { border-color: var(--text); color: var(--text); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; filter: none; }
+
+  /* ===== DIVIDER ===== */
+  .divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
+  .divider hr { flex: 1; border: none; border-top: 1px solid var(--border); }
+  .divider span { color: var(--muted); font-size: 13px; }
+
+  /* ===== TAGS ===== */
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag {
+    padding: 6px 14px; border-radius: 99px; font-size: 12px;
+    font-weight: 700; cursor: pointer; border: 1.5px solid transparent;
+    text-transform: uppercase; letter-spacing: 1px; transition: all 0.15s;
+  }
+  .tag.active-kanji { background: rgba(230,57,70,0.2); border-color: var(--red); color: var(--red); }
+  .tag.active-kosakata { background: rgba(29,107,245,0.2); border-color: var(--blue); color: #5b9cf6; }
+  .tag.active-bunpou { background: rgba(244,208,63,0.2); border-color: var(--yellow); color: var(--yellow); }
+  .tag.inactive { background: var(--bg3); border-color: var(--border); color: var(--muted); }
+
+  /* ===== ROOM CODE ===== */
+  .room-code-display {
+    background: var(--bg3); border: 2px dashed var(--border);
+    border-radius: 12px; padding: 20px;
+    text-align: center; margin: 20px 0;
+  }
+  .room-code-display .code {
+    font-family: 'Bangers', cursive; font-size: 52px;
+    letter-spacing: 12px; color: var(--yellow);
+    filter: drop-shadow(0 0 10px rgba(244,208,63,0.5));
+  }
+  .room-code-display small { color: var(--muted); font-size: 12px; display: block; margin-top: 8px; }
+
+  /* ===== WAITING ROOM ===== */
+  .waiting-players {
+    display: flex; gap: 16px; margin: 24px 0;
+  }
+  .waiting-slot {
+    flex: 1; padding: 20px; border-radius: 12px;
+    border: 2px dashed var(--border); text-align: center;
+    transition: all 0.3s;
+  }
+  .waiting-slot.filled { border-style: solid; }
+  .waiting-slot.p1.filled { border-color: var(--red); background: rgba(230,57,70,0.1); }
+  .waiting-slot.p2.filled { border-color: var(--blue); background: rgba(29,107,245,0.1); }
+  .waiting-slot .slot-avatar { font-size: 36px; margin-bottom: 8px; }
+  .waiting-slot .slot-name { font-weight: 900; font-size: 15px; }
+  .waiting-slot .slot-empty { color: var(--muted); font-size: 13px; }
+
+  /* ===== BATTLE ARENA ===== */
+  .battle-arena {
+    width: 100%; max-width: 900px;
+    display: flex; flex-direction: column;
+    gap: 0; padding: 16px;
+  }
+
+  /* HP Bars */
+  .hp-row {
+    display: flex; gap: 12px; align-items: center;
+    margin-bottom: 20px;
+  }
+  .hp-block { flex: 1; }
+  .hp-name {
+    font-weight: 900; font-size: 14px; text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 6px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .hp-name.p1 { color: var(--red); }
+  .hp-name.p2 { color: #5b9cf6; flex-direction: row-reverse; }
+  .hp-bar-track {
+    height: 22px; border-radius: 4px;
+    background: var(--bg3); overflow: hidden;
+    border: 1px solid var(--border);
+    position: relative;
+  }
+  .hp-bar-fill {
+    height: 100%; border-radius: 4px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative; overflow: hidden;
+  }
+  .hp-bar-fill.p1 { background: linear-gradient(90deg, var(--red-dark), var(--red), #ff6b6b); }
+  .hp-bar-fill.p2 { background: linear-gradient(270deg, var(--blue-dark), var(--blue), #5b9cf6); float: right; }
+  .hp-bar-fill::after {
+    content: ''; position: absolute; top: 0; left: -100%;
+    width: 60%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+  }
+  @keyframes shimmer { to { left: 200%; } }
+
+  .hp-vs {
+    font-family: 'Bangers', cursive; font-size: 28px;
+    color: var(--yellow); padding: 0 8px;
+    filter: drop-shadow(0 0 8px rgba(244,208,63,0.6));
+  }
+
+  /* Fighters */
+  .fighters-row {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    position: relative; margin-bottom: 16px; min-height: 160px;
+  }
+  .fighter {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 8px; position: relative;
+  }
+  .fighter-sprite {
+    font-size: 80px; line-height: 1;
+    transition: transform 0.1s;
+    filter: drop-shadow(0 0 20px rgba(255,255,255,0.1));
+  }
+  .fighter.p1 .fighter-sprite { transform-origin: center bottom; }
+  .fighter.p2 .fighter-sprite { transform: scaleX(-1); transform-origin: center bottom; }
+  .fighter.hit .fighter-sprite { animation: hitFlash 0.4s; }
+  .fighter.attack .fighter-sprite { animation: attackAnim 0.3s; }
+  @keyframes hitFlash {
+    0% { filter: drop-shadow(0 0 0 transparent); }
+    20% { filter: drop-shadow(0 0 30px red) brightness(2); transform: translateX(10px); }
+    40% { filter: drop-shadow(0 0 20px red); transform: translateX(-5px); }
+    100% { filter: drop-shadow(0 0 20px rgba(255,255,255,0.1)); transform: translateX(0); }
+  }
+  @keyframes attackAnim {
+    0% { transform: translateX(0) scaleX(-1); }
+    50% { transform: translateX(40px) scaleX(-1) scale(1.1); }
+    100% { transform: translateX(0) scaleX(-1); }
+  }
+  .fighter.p1 .fighter-sprite.attack-anim { animation: attackAnimP1 0.3s; }
+  @keyframes attackAnimP1 {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(-40px) scale(1.1); }
+    100% { transform: translateX(0); }
+  }
+
+  .fighter-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; padding: 4px 10px; border-radius: 99px;
+  }
+  .fighter.p1 .fighter-label { background: rgba(230,57,70,0.2); color: var(--red); }
+  .fighter.p2 .fighter-label { background: rgba(29,107,245,0.2); color: #5b9cf6; }
+
+  /* Energy blast */
+  .energy-blast {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 60px; opacity: 0;
+    pointer-events: none; z-index: 10;
+  }
+  .energy-blast.fire { animation: blastFire 0.6s forwards; }
+  .energy-blast.water { animation: blastWater 0.6s forwards; }
+  @keyframes blastFire {
+    0% { opacity: 1; transform: translate(-50%,-50%) scale(0.5); }
+    50% { opacity: 1; transform: translate(-50%,-50%) scale(2); }
+    100% { opacity: 0; transform: translate(-50%,-50%) scale(3); }
+  }
+  @keyframes blastWater {
+    0% { opacity: 1; transform: translate(-50%,-50%) scale(0.5) rotate(-20deg); }
+    50% { opacity: 1; transform: translate(-50%,-50%) scale(2) rotate(10deg); }
+    100% { opacity: 0; transform: translate(-50%,-50%) scale(3) rotate(30deg); }
+  }
+
+  /* Question card */
+  .question-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px;
+  }
+  .question-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px;
+  }
+  .q-badge {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; padding: 4px 10px; border-radius: 99px;
+  }
+  .q-badge.kanji { background: rgba(230,57,70,0.2); color: var(--red); }
+  .q-badge.kosakata { background: rgba(29,107,245,0.2); color: #5b9cf6; }
+  .q-badge.bunpou { background: rgba(244,208,63,0.2); color: var(--yellow); }
+
+  .q-timer {
+    font-family: 'Bangers', cursive; font-size: 28px;
+    color: var(--text);
+  }
+  .q-timer.urgent { color: var(--red); animation: pulse 0.5s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+  .question-text {
+    font-size: clamp(18px, 3vw, 24px); font-weight: 900;
+    text-align: center; margin-bottom: 8px; line-height: 1.4;
+  }
+  .question-reading {
+    text-align: center; color: var(--muted); font-size: 14px; margin-bottom: 20px;
+  }
+
+  /* Options grid */
+  .options-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .option-btn {
+    padding: 14px 16px; border-radius: 10px;
+    background: var(--bg3); border: 1.5px solid var(--border);
+    color: var(--text); font-family: 'Nunito', sans-serif;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    text-align: left; transition: all 0.15s;
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--blue); background: rgba(29,107,245,0.1); }
+  .option-btn:disabled { cursor: not-allowed; }
+  .option-btn.correct { background: rgba(46,204,113,0.2) !important; border-color: var(--green) !important; color: var(--green) !important; }
+  .option-btn.wrong { background: rgba(230,57,70,0.2) !important; border-color: var(--red) !important; color: var(--red) !important; }
+  .option-btn.reveal { background: rgba(46,204,113,0.1) !important; border-color: var(--green) !important; }
+  .option-label {
+    background: var(--border); border-radius: 4px;
+    padding: 1px 7px; font-size: 12px; flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* Status bar bawah soal */
+  .status-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 16px; font-size: 13px; color: var(--muted);
+  }
+  .answered-indicator {
+    display: flex; gap: 8px;
+  }
+  .answered-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    border: 2px solid var(--border); transition: all 0.2s;
+  }
+  .answered-dot.p1-answered { border-color: var(--red); background: var(--red); }
+  .answered-dot.p2-answered { border-color: var(--blue); background: var(--blue); }
+
+  /* Damage popup */
+  .damage-popup {
+    position: fixed; pointer-events: none; z-index: 100;
+    font-family: 'Bangers', cursive; font-size: 48px;
+    animation: damageFloat 1.2s forwards;
+  }
+  .damage-popup.p1-dmg { color: var(--red); left: 20%; top: 30%; }
+  .damage-popup.p2-dmg { color: #5b9cf6; right: 20%; top: 30%; }
+  @keyframes damageFloat {
+    0% { opacity: 1; transform: translateY(0) scale(0.5); }
+    30% { opacity: 1; transform: translateY(-30px) scale(1.2); }
+    100% { opacity: 0; transform: translateY(-80px) scale(0.8); }
+  }
+
+  /* ===== GAME OVER ===== */
+  .gameover-screen {
+    text-align: center;
+  }
+  .winner-announcement {
+    font-family: 'Bangers', cursive;
+    font-size: clamp(36px, 7vw, 72px);
+    letter-spacing: 4px;
+    margin-bottom: 8px;
+    animation: winnerGlow 2s ease-in-out infinite;
+  }
+  @keyframes winnerGlow {
+    0%,100% { filter: drop-shadow(0 0 20px gold); }
+    50% { filter: drop-shadow(0 0 50px gold) brightness(1.2); }
+  }
+  .loser-text { color: var(--muted); font-size: 16px; margin-bottom: 32px; }
+
+  /* ===== MISC ===== */
+  .q-progress { color: var(--muted); font-size: 13px; }
+  .info-text { color: var(--muted); font-size: 13px; text-align: center; margin-top: 12px; }
+  .error-box {
+    background: rgba(230,57,70,0.1); border: 1px solid var(--red);
+    border-radius: 8px; padding: 12px 16px; font-size: 14px;
+    color: #ff6b6b; margin-bottom: 16px;
+  }
+  .success-box {
+    background: rgba(46,204,113,0.1); border: 1px solid var(--green);
+    border-radius: 8px; padding: 12px 16px; font-size: 14px;
+    color: var(--green); margin-bottom: 16px;
+  }
+
+  .settings-row { display: flex; gap: 8px; }
+  .settings-row > * { flex: 1; }
+
+  .loading-dots::after {
+    content: '';
+    animation: dots 1.5s infinite;
+  }
+  @keyframes dots {
+    0% { content: ''; }
+    33% { content: '.'; }
+    66% { content: '..'; }
+    100% { content: '...'; }
+  }
+
+  /* Particles */
+  .particle {
+    position: fixed; pointer-events: none; z-index: 200;
+    font-size: 20px; animation: particleFly 1s forwards;
+  }
+  @keyframes particleFly {
+    0% { opacity: 1; transform: translate(0,0) scale(1); }
+    100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0.3); }
+  }
+
+  /* COMBO badge */
+  .combo-badge {
+    position: fixed; top: 40%; left: 50%; transform: translateX(-50%);
+    font-family: 'Bangers', cursive; font-size: 52px;
+    color: var(--yellow); z-index: 150; pointer-events: none;
+    animation: comboPop 1s forwards;
+    text-shadow: 0 0 30px rgba(244,208,63,0.8);
+  }
+  @keyframes comboPop {
+    0% { opacity: 0; transform: translateX(-50%) scale(0.3); }
+    20% { opacity: 1; transform: translateX(-50%) scale(1.3); }
+    80% { opacity: 1; transform: translateX(-50%) scale(1); }
+    100% { opacity: 0; transform: translateX(-50%) scale(0.8); }
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .options-grid { grid-template-columns: 1fr; }
+    .fighters-row { min-height: 120px; }
+    .fighter-sprite { font-size: 56px; }
+    .battle-arena { padding: 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="stars-bg"></div>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// ===== SUPABASE CONFIG =====
+const SUPABASE_URL = 'https://wnugxpdzimbwamguapms.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndudWd4cGR6aW1id2FtZ3VhcG1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxMjY1NzIsImV4cCI6MjA5NzcwMjU3Mn0.jTdXgJnrYh4Tf5zNHRa_xc3xK9ypkteMvyvBFM88OSs';
+const supabase = supabase_js.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ===== CONSTANTS =====
+const FIGHTER_EMOJIS = ['🥷', '🧙', '⚔️', '🦊', '🐉', '🔥', '⚡', '🌊'];
+const FIGHTER_P1 = '🥷';
+const FIGHTER_P2 = '🧙';
+const QUESTION_TIME = 20; // seconds per question
+
+// ===== UTILS =====
+function genRoomCode() {
+  return Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ===== AUDIO =====
+function playSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    if (type === 'correct') {
+      o.frequency.setValueAtTime(523, ctx.currentTime);
+      o.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
+      o.frequency.setValueAtTime(784, ctx.currentTime + 0.2);
+      g.gain.setValueAtTime(0.3, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+      o.start(); o.stop(ctx.currentTime + 0.5);
+    } else if (type === 'wrong') {
+      o.frequency.setValueAtTime(200, ctx.currentTime);
+      o.frequency.setValueAtTime(150, ctx.currentTime + 0.1);
+      o.type = 'sawtooth';
+      g.gain.setValueAtTime(0.3, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      o.start(); o.stop(ctx.currentTime + 0.4);
+    } else if (type === 'hit') {
+      o.frequency.setValueAtTime(80, ctx.currentTime);
+      o.type = 'square';
+      g.gain.setValueAtTime(0.4, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      o.start(); o.stop(ctx.currentTime + 0.3);
+    } else if (type === 'start') {
+      [523, 659, 784, 1047].forEach((f, i) => {
+        const o2 = ctx.createOscillator();
+        const g2 = ctx.createGain();
+        o2.connect(g2); g2.connect(ctx.destination);
+        o2.frequency.setValueAtTime(f, ctx.currentTime + i * 0.12);
+        g2.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.12);
+        g2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.3);
+        o2.start(ctx.currentTime + i * 0.12);
+        o2.stop(ctx.currentTime + i * 0.12 + 0.3);
+      });
+    } else if (type === 'victory') {
+      const melody = [523, 659, 784, 659, 784, 1047];
+      melody.forEach((f, i) => {
+        const o2 = ctx.createOscillator();
+        const g2 = ctx.createGain();
+        o2.connect(g2); g2.connect(ctx.destination);
+        o2.frequency.setValueAtTime(f, ctx.currentTime + i * 0.15);
+        g2.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.15);
+        g2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.15 + 0.4);
+        o2.start(ctx.currentTime + i * 0.15);
+        o2.stop(ctx.currentTime + i * 0.15 + 0.4);
+      });
+    }
+  } catch(e) {}
+}
+
+// ===== PARTICLES =====
+function spawnParticles(x, y, color) {
+  const emojis = color === 'red' ? ['💥','🔥','⚡'] : ['✨','💫','⚡'];
+  emojis.forEach((e, i) => {
+    const el = document.createElement('div');
+    el.className = 'particle';
+    el.textContent = e;
+    const angle = (i / emojis.length) * Math.PI * 2 + Math.random();
+    const dist = 80 + Math.random() * 60;
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+    el.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1000);
+  });
+}
+
+// ===== SCREENS =====
+
+// --- HOME ---
+function HomeScreen({ onCreateRoom, onJoinRoom }) {
+  return (
+    <div className="screen">
+      <div className="logo">日本語<br/>バトル</div>
+      <div className="logo-sub">Japanese PvP Battle — edu.ichikara.co.id</div>
+      <div className="card">
+        <h2>⚔️ Pilih Mode</h2>
+        <button className="btn btn-danger" onClick={onCreateRoom}>
+          🏯 Buat Room
+        </button>
+        <div className="divider"><hr/><span>atau</span><hr/></div>
+        <button className="btn btn-primary" onClick={onJoinRoom}>
+          🎯 Join Room
+        </button>
+        <p className="info-text">Duel 1 vs 1 · Jawab cepat · Habiskan HP lawan!</p>
+      </div>
+    </div>
+  );
+}
+
+// --- CREATE ROOM ---
+function CreateRoomScreen({ onBack, onRoomCreated }) {
+  const [name, setName] = useState('');
+  const [hpMode, setHpMode] = useState(10);
+  const [categories, setCategories] = useState(['kanji', 'kosakata', 'bunpou']);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const toggleCat = (cat) => {
+    setCategories(prev =>
+      prev.includes(cat)
+        ? prev.length > 1 ? prev.filter(c => c !== cat) : prev
+        : [...prev, cat]
+    );
+  };
+
+  const create = async () => {
+    if (!name.trim()) { setError('Masukin nama dulu bro!'); return; }
+    setLoading(true); setError('');
+    try {
+      const code = genRoomCode();
+      const { data, error: err } = await supabase
+        .from('rooms')
+        .insert({
+          room_code: code,
+          status: 'waiting',
+          hp_mode: hpMode,
+          categories,
+          level: 'N5',
+          question_format: 'multiple_choice',
+          player1_name: name.trim(),
+          player1_hp: hpMode,
+          player2_hp: hpMode,
+        })
+        .select().single();
+      if (err) throw err;
+      onRoomCreated(data, 'player1', name.trim());
+    } catch(e) {
+      setError('Gagal buat room: ' + e.message);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="screen">
+      <div className="card">
+        <h2>🏯 Buat Room</h2>
+        {error && <div className="error-box">{error}</div>}
+        <div className="input-group">
+          <label>Nama kamu</label>
+          <input value={name} onChange={e => setName(e.target.value)}
+            placeholder="Misal: Gojo Satoru" maxLength={20}
+            onKeyDown={e => e.key === 'Enter' && create()} />
+        </div>
+        <div className="input-group">
+          <label>HP / Jumlah soal untuk menang</label>
+          <div className="settings-row">
+            {[5,10,20].map(n => (
+              <button key={n} className={`btn ${hpMode===n ? 'btn-danger' : 'btn-ghost'}`}
+                onClick={() => setHpMode(n)} style={{fontSize:'13px',padding:'10px'}}>
+                {n} soal
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="input-group">
+          <label>Kategori soal</label>
+          <div className="tags">
+            {['kanji','kosakata','bunpou'].map(cat => (
+              <span key={cat}
+                className={`tag ${categories.includes(cat) ? `active-${cat}` : 'inactive'}`}
+                onClick={() => toggleCat(cat)}>
+                {cat === 'kanji' ? '🈷️ Kanji' : cat === 'kosakata' ? '📖 Kosakata' : '⚙️ Bunpou'}
+              </span>
+            ))}
+          </div>
+        </div>
+        <button className="btn btn-danger" onClick={create} disabled={loading}>
+          {loading ? <span className="loading-dots">Membuat room</span> : '🔥 Buat Room'}
+        </button>
+        <div style={{marginTop:12}}>
+          <button className="btn btn-ghost" onClick={onBack}>← Kembali</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- JOIN ROOM ---
+function JoinRoomScreen({ onBack, onRoomJoined }) {
+  const [name, setName] = useState('');
+  const [code, setCode] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const join = async () => {
+    if (!name.trim()) { setError('Masukin nama dulu!'); return; }
+    if (code.trim().length < 6) { setError('Room code harus 6 karakter!'); return; }
+    setLoading(true); setError('');
+    try {
+      const { data: room, error: err } = await supabase
+        .from('rooms')
+        .select('*')
+        .eq('room_code', code.trim().toUpperCase())
+        .single();
+      if (err || !room) throw new Error('Room tidak ditemukan!');
+      if (room.status !== 'waiting') throw new Error('Battle udah dimulai atau selesai!');
+      if (room.player2_name) throw new Error('Room sudah penuh!');
+
+      const { data: updated, error: err2 } = await supabase
+        .from('rooms')
+        .update({ player2_name: name.trim() })
+        .eq('id', room.id)
+        .select().single();
+      if (err2) throw err2;
+
+      onRoomJoined(updated, 'player2', name.trim());
+    } catch(e) {
+      setError(e.message);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="screen">
+      <div className="card">
+        <h2>🎯 Join Room</h2>
+        {error && <div className="error-box">{error}</div>}
+        <div className="input-group">
+          <label>Nama kamu</label>
+          <input value={name} onChange={e => setName(e.target.value)}
+            placeholder="Misal: Yuji Itadori" maxLength={20} />
+        </div>
+        <div className="input-group">
+          <label>Room Code</label>
+          <input value={code} onChange={e => setCode(e.target.value.toUpperCase())}
+            placeholder="6 karakter, misal: AB3X7Z" maxLength={6}
+            style={{letterSpacing:'6px', fontSize:'20px', textAlign:'center', fontWeight:900}}
+            onKeyDown={e => e.key === 'Enter' && join()} />
+        </div>
+        <button className="btn btn-primary" onClick={join} disabled={loading}>
+          {loading ? <span className="loading-dots">Bergabung</span> : '⚡ Join Battle!'}
+        </button>
+        <div style={{marginTop:12}}>
+          <button className="btn btn-ghost" onClick={onBack}>← Kembali</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- WAITING ROOM ---
+function WaitingRoomScreen({ room, mySlot, myName, onGameStart }) {
+  const [currentRoom, setCurrentRoom] = useState(room);
+
+  useEffect(() => {
+    const channel = supabase.channel(`room-${room.id}`)
+      .on('postgres_changes', {
+        event: 'UPDATE', schema: 'public', table: 'rooms',
+        filter: `id=eq.${room.id}`
+      }, payload => {
+        const r = payload.new;
+        setCurrentRoom(r);
+        if (r.status === 'in_progress') {
+          playSound('start');
+          onGameStart(r);
+        }
+      })
+      .subscribe();
+    return () => supabase.removeChannel(channel);
+  }, [room.id]);
+
+  const startGame = async () => {
+    if (!currentRoom.player2_name) return;
+    // Ambil soal sesuai kategori
+    const cats = currentRoom.categories;
+    const questionsPerCat = Math.ceil((currentRoom.hp_mode * 3) / cats.length);
+    let allQuestions = [];
+    for (const cat of cats) {
+      const { data } = await supabase
+        .from('questions')
+        .select('id')
+        .eq('level', 'N5')
+        .eq('category', cat)
+        .eq('format', 'multiple_choice')
+        .limit(questionsPerCat * 2);
+      if (data) allQuestions = [...allQuestions, ...data];
+    }
+    const shuffled = shuffle(allQuestions).slice(0, currentRoom.hp_mode * 3);
+    const ids = shuffled.map(q => q.id);
+
+    await supabase.from('rooms').update({
+      status: 'in_progress',
+      question_sequence: ids,
+      current_question_index: 0,
+      current_question_id: ids[0],
+    }).eq('id', room.id);
+  };
+
+  const p1 = currentRoom.player1_name;
+  const p2 = currentRoom.player2_name;
+
+  return (
+    <div className="screen">
+      <div className="logo" style={{fontSize:'36px',marginBottom:'8px'}}>⚔️ Waiting Room</div>
+      <div className="card" style={{maxWidth:'520px'}}>
+        <div className="room-code-display">
+          <div style={{fontSize:'12px',color:'var(--muted)',textTransform:'uppercase',letterSpacing:'2px',marginBottom:'8px'}}>Kode Room</div>
+          <div className="code">{currentRoom.room_code}</div>
+          <small>Kasih kode ini ke lawan kamu!</small>
+        </div>
+
+        <div className="waiting-players">
+          <div className={`waiting-slot p1 ${p1 ? 'filled' : ''}`}>
+            <div className="slot-avatar">{FIGHTER_P1}</div>
+            {p1
+              ? <div className="slot-name" style={{color:'var(--red)'}}>{p1}</div>
+              : <div className="slot-empty">Menunggu...</div>}
+          </div>
+          <div style={{display:'flex',alignItems:'center',flexShrink:0}}>
+            <span className="hp-vs">VS</span>
+          </div>
+          <div className={`waiting-slot p2 ${p2 ? 'filled' : ''}`}>
+            <div className="slot-avatar">{FIGHTER_P2}</div>
+            {p2
+              ? <div className="slot-name" style={{color:'#5b9cf6'}}>{p2}</div>
+              : <div className="slot-empty">Menunggu<span className="loading-dots"/></div>}
+          </div>
+        </div>
+
+        <div style={{fontSize:'13px',color:'var(--muted)',marginBottom:'20px',display:'flex',gap:'16px',justifyContent:'center',flexWrap:'wrap'}}>
+          <span>❤️ HP: {currentRoom.hp_mode} soal</span>
+          <span>📚 {currentRoom.categories.join(' + ')}</span>
+          <span>🎌 Level N5</span>
+        </div>
+
+        {mySlot === 'player1' && (
+          <button className="btn btn-danger" onClick={startGame}
+            disabled={!p2} style={{marginBottom:0}}>
+            {p2 ? '🔥 MULAI BATTLE!' : '⏳ Menunggu lawan...'}
+          </button>
+        )}
+        {mySlot === 'player2' && (
+          <div className="info-text" style={{padding:'14px',background:'var(--bg3)',borderRadius:'10px',marginBottom:0}}>
+            ⏳ Menunggu host memulai battle<span className="loading-dots"/>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// --- BATTLE SCREEN ---
+function BattleScreen({ room, mySlot, myName, onGameOver }) {
+  const [currentRoom, setCurrentRoom] = useState(room);
+  const [question, setQuestion] = useState(null);
+  const [myAnswer, setMyAnswer] = useState(null);
+  const [opponentAnswered, setOpponentAnswered] = useState(false);
+  const [showResult, setShowResult] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
+  const [p1Anim, setP1Anim] = useState('');
+  const [p2Anim, setP2Anim] = useState('');
+  const [blast, setBlast] = useState(null);
+  const [damageShown, setDamageShown] = useState(null);
+  const [combo, setCombo] = useState(null);
+  const [myComboCount, setMyComboCount] = useState(0);
+
+  const timerRef = useRef(null);
+  const resultTimerRef = useRef(null);
+  const answeredRef = useRef(false);
+
+  const opponentSlot = mySlot === 'player1' ? 'player2' : 'player1';
+  const myHP = mySlot === 'player1' ? currentRoom.player1_hp : currentRoom.player2_hp;
+  const opHP = mySlot === 'player1' ? currentRoom.player2_hp : currentRoom.player1_hp;
+  const myHPMax = room.hp_mode;
+  const opName = mySlot === 'player1' ? currentRoom.player2_name : currentRoom.player1_name;
+
+  // Load question
+  useEffect(() => {
+    if (!currentRoom.current_question_id) return;
+    setMyAnswer(null); setOpponentAnswered(false);
+    setShowResult(false); setTimeLeft(QUESTION_TIME);
+    answeredRef.current = false;
+    supabase.from('questions').select('*')
+      .eq('id', currentRoom.current_question_id)
+      .single().then(({ data }) => setQuestion(data));
+  }, [currentRoom.current_question_id]);
+
+  // Timer
+  useEffect(() => {
+    if (!question || showResult) return;
+    timerRef.current = setInterval(() => {
+      setTimeLeft(t => {
+        if (t <= 1) {
+          clearInterval(timerRef.current);
+          if (!answeredRef.current) handleAnswer(null);
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [question?.id, showResult]);
+
+  // Realtime subscribe
+  useEffect(() => {
+    const channel = supabase.channel(`battle-${room.id}`)
+      .on('postgres_changes', {
+        event: 'UPDATE', schema: 'public', table: 'rooms',
+        filter: `id=eq.${room.id}`
+      }, payload => {
+        const r = payload.new;
+        setCurrentRoom(r);
+        if (r.status === 'finished') {
+          playSound('victory');
+          setTimeout(() => onGameOver(r), 500);
+        }
+      })
+      .on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'game_events',
+        filter: `room_id=eq.${room.id}`
+      }, payload => {
+        const ev = payload.new;
+        if (ev.player !== mySlot) {
+          // Lawan jawab
+          if (ev.event_type === 'answer_correct' || ev.event_type === 'answer_wrong') {
+            setOpponentAnswered(true);
+          }
+        }
+      })
+      .subscribe();
+    return () => supabase.removeChannel(channel);
+  }, [room.id, mySlot]);
+
+  const handleAnswer = async (selectedValue) => {
+    if (answeredRef.current) return;
+    answeredRef.current = true;
+    clearInterval(timerRef.current);
+
+    const isCorrect = selectedValue !== null && selectedValue === question?.correct_answer;
+    setMyAnswer(selectedValue);
+    setShowResult(true);
+
+    playSound(isCorrect ? 'correct' : 'wrong');
+
+    // Log event
+    await supabase.from('game_events').insert({
+      room_id: room.id,
+      player: mySlot,
+      event_type: isCorrect ? 'answer_correct' : 'answer_wrong',
+      payload: { question_id: question?.id, answer: selectedValue }
+    });
+
+    if (isCorrect) {
+      // Deal damage ke lawan
+      playSound('hit');
+      const opField = opponentSlot === 'player1' ? 'player1_hp' : 'player2_hp';
+      const newOpHP = Math.max(0, opHP - 1);
+
+      // Animasi
+      if (mySlot === 'player1') {
+        setP1Anim('attack'); setP2Anim('hit');
+        setBlast('fire');
+      } else {
+        setP2Anim('attack'); setP1Anim('hit');
+        setBlast('water');
+      }
+
+      setDamageShown({ target: opponentSlot });
+      setTimeout(() => { setP1Anim(''); setP2Anim(''); setBlast(null); setDamageShown(null); }, 800);
+
+      // Combo
+      const newCombo = myComboCount + 1;
+      setMyComboCount(newCombo);
+      if (newCombo >= 2) {
+        setCombo(`COMBO x${newCombo}!`);
+        setTimeout(() => setCombo(null), 1000);
+      }
+
+      // Update HP
+      const updateObj = { [opField]: newOpHP };
+
+      // Cek apakah ini soal terakhir atau HP habis
+      const nextIndex = currentRoom.current_question_index + 1;
+      const seqLen = (currentRoom.question_sequence || []).length;
+      const gameOver = newOpHP <= 0;
+
+      if (gameOver) {
+        updateObj.status = 'finished';
+        updateObj.winner = mySlot;
+      } else if (nextIndex >= seqLen) {
+        // Soal habis, siapa HP lebih tinggi menang
+        const myField = mySlot === 'player1' ? 'player1_hp' : 'player2_hp';
+        const myCurrentHP = mySlot === 'player1' ? currentRoom.player1_hp : currentRoom.player2_hp;
+        updateObj.status = 'finished';
+        updateObj.winner = myCurrentHP >= newOpHP ? mySlot : opponentSlot;
+      } else {
+        // Next question after delay
+        updateObj.current_question_index = nextIndex;
+        updateObj.current_question_id = currentRoom.question_sequence[nextIndex];
+      }
+
+      setTimeout(() => {
+        supabase.from('rooms').update(updateObj).eq('id', room.id);
+      }, 1500);
+    } else {
+      setMyComboCount(0);
+      // Kalau salah, tunggu 2s lalu next soal (kalau ini yang decide)
+      // Actually: soal lanjut setelah 2s kalau keduanya sudah jawab atau timeout
+      resultTimerRef.current = setTimeout(async () => {
+        const nextIndex = currentRoom.current_question_index + 1;
+        const seqLen = (currentRoom.question_sequence || []).length;
+        if (nextIndex < seqLen) {
+          // Hanya update kalau belum ada yang jawab benar (cek dari server state)
+          const { data: freshRoom } = await supabase
+            .from('rooms').select('*').eq('id', room.id).single();
+          if (freshRoom && freshRoom.current_question_index === currentRoom.current_question_index) {
+            await supabase.from('rooms').update({
+              current_question_index: nextIndex,
+              current_question_id: freshRoom.question_sequence[nextIndex],
+            }).eq('id', room.id);
+          }
+        } else {
+          // Soal habis
+          const { data: freshRoom } = await supabase
+            .from('rooms').select('*').eq('id', room.id).single();
+          if (freshRoom && freshRoom.status !== 'finished') {
+            const winner = freshRoom.player1_hp >= freshRoom.player2_hp ? 'player1' : 'player2';
+            await supabase.from('rooms').update({ status:'finished', winner }).eq('id', room.id);
+          }
+        }
+      }, 2000);
+    }
+  };
+
+  if (!question) {
+    return (
+      <div className="screen">
+        <div style={{textAlign:'center'}}>
+          <div style={{fontSize:'48px',marginBottom:'16px'}}>⚔️</div>
+          <div className="loading-dots" style={{fontSize:'18px',color:'var(--muted)'}}>Memuat soal</div>
+        </div>
+      </div>
+    );
+  }
+
+  const opts = question.options ? JSON.parse(typeof question.options === 'string' ? question.options : JSON.stringify(question.options)) : [];
+  const p1HPPct = Math.max(0, (currentRoom.player1_hp / myHPMax) * 100);
+  const p2HPPct = Math.max(0, (currentRoom.player2_hp / myHPMax) * 100);
+  const qIndex = currentRoom.current_question_index + 1;
+  const qTotal = (currentRoom.question_sequence || []).length;
+
+  return (
+    <div className="screen" style={{justifyContent:'flex-start',paddingTop:'16px'}}>
+      <div className="battle-arena">
+
+        {/* HP Bars */}
+        <div className="hp-row">
+          <div className="hp-block">
+            <div className="hp-name p1">
+              <span>{currentRoom.player1_name}</span>
+              <span>{currentRoom.player1_hp}/{myHPMax}</span>
+            </div>
+            <div className="hp-bar-track">
+              <div className="hp-bar-fill p1" style={{width: p1HPPct + '%'}}/>
+            </div>
+          </div>
+          <span className="hp-vs">VS</span>
+          <div className="hp-block">
+            <div className="hp-name p2">
+              <span>{currentRoom.player2_name}</span>
+              <span>{currentRoom.player2_hp}/{myHPMax}</span>
+            </div>
+            <div className="hp-bar-track">
+              <div className="hp-bar-fill p2" style={{width: p2HPPct + '%'}}/>
+            </div>
+          </div>
+        </div>
+
+        {/* Fighters */}
+        <div className="fighters-row">
+          <div className={`fighter p1 ${p1Anim === 'hit' ? 'hit' : ''} ${p1Anim === 'attack' ? 'attack' : ''}`}>
+            <div className={`fighter-sprite ${p1Anim === 'attack' ? 'attack-anim' : ''}`}>{FIGHTER_P1}</div>
+            <div className="fighter-label">{currentRoom.player1_name}</div>
+          </div>
+
+          <div style={{position:'relative',flex:1,display:'flex',alignItems:'center',justifyContent:'center'}}>
+            {blast && <div className={`energy-blast ${blast}`}>{blast==='fire'?'🔥':'💧'}</div>}
+            <div style={{fontSize:'11px',color:'var(--muted)',textAlign:'center'}}>
+              <div style={{fontFamily:"'Bangers',cursive",fontSize:'16px',color:'var(--yellow)'}}>
+                ⏱️ {timeLeft}s
+              </div>
+              <div>Soal {qIndex}/{qTotal}</div>
+            </div>
+          </div>
+
+          <div className={`fighter p2 ${p2Anim === 'hit' ? 'hit' : ''} ${p2Anim === 'attack' ? 'attack' : ''}`}>
+            <div className="fighter-sprite">{FIGHTER_P2}</div>
+            <div className="fighter-label">{currentRoom.player2_name}</div>
+          </div>
+        </div>
+
+        {/* Damage popup */}
+        {damageShown && (
+          <div className={`damage-popup ${damageShown.target === 'player1' ? 'p1-dmg' : 'p2-dmg'}`}>
+            -1 💢
+          </div>
+        )}
+
+        {/* Combo */}
+        {combo && <div className="combo-badge">{combo}</div>}
+
+        {/* Question Card */}
+        <div className="question-card">
+          <div className="question-meta">
+            <span className={`q-badge ${question.category}`}>
+              {question.category === 'kanji' ? '🈷️ Kanji' : question.category === 'kosakata' ? '📖 Kosakata' : '⚙️ Bunpou'}
+            </span>
+            <div style={{display:'flex',alignItems:'center',gap:'16px'}}>
+              <div className="answered-indicator">
+                <div className={`answered-dot ${mySlot==='player1' && myAnswer!==null ? 'p1-answered' : ''}`} title="P1"/>
+                <div className={`answered-dot ${mySlot==='player2' && myAnswer!==null ? 'p2-answered' : opponentAnswered ? (mySlot==='player1' ? 'p2-answered' : 'p1-answered') : ''}`} title="P2"/>
+              </div>
+              <span className={`q-timer ${timeLeft <= 5 ? 'urgent' : ''}`}>{timeLeft}s</span>
+            </div>
+          </div>
+
+          <div className="question-text">{question.question}</div>
+          {question.reading && <div className="question-reading">({question.reading})</div>}
+
+          <div className="options-grid">
+            {opts.map(opt => {
+              let cls = 'option-btn';
+              if (showResult) {
+                if (opt.value === question.correct_answer) cls += ' correct';
+                else if (opt.value === myAnswer && opt.value !== question.correct_answer) cls += ' wrong';
+              }
+              return (
+                <button key={opt.label} className={cls}
+                  disabled={showResult || myAnswer !== null}
+                  onClick={() => handleAnswer(opt.value)}>
+                  <span className="option-label">{opt.label}</span>
+                  <span>{opt.value}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {showResult && (
+            <div className="status-row">
+              <span style={{color: myAnswer === question.correct_answer ? 'var(--green)' : 'var(--red)', fontWeight:700}}>
+                {myAnswer === null ? '⏰ Timeout!' : myAnswer === question.correct_answer ? '✅ Benar! +Damage!' : '❌ Salah!'}
+              </span>
+              {question.explanation && (
+                <span style={{color:'var(--muted)',fontSize:'12px',maxWidth:'200px',textAlign:'right'}}>
+                  {question.explanation}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* My role indicator */}
+        <div style={{textAlign:'center',marginTop:'12px',fontSize:'12px',color:'var(--muted)'}}>
+          Kamu: <strong style={{color: mySlot==='player1' ? 'var(--red)' : '#5b9cf6'}}>
+            {mySlot==='player1'?FIGHTER_P1:FIGHTER_P2} {myName}
+          </strong>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- GAME OVER ---
+function GameOverScreen({ room, mySlot, myName, onPlayAgain, onHome }) {
+  const iWon = room.winner === mySlot;
+  const winnerName = room.winner === 'player1' ? room.player1_name : room.player2_name;
+  const loserName = room.winner === 'player1' ? room.player2_name : room.player1_name;
+
+  useEffect(() => {
+    playSound('victory');
+    // Spawn particles
+    for (let i = 0; i < 3; i++) {
+      setTimeout(() => {
+        spawnParticles(
+          window.innerWidth * (0.2 + Math.random() * 0.6),
+          window.innerHeight * 0.3,
+          'gold'
+        );
+      }, i * 300);
+    }
+  }, []);
+
+  return (
+    <div className="screen">
+      <div className="card gameover-screen" style={{maxWidth:'480px'}}>
+        <div style={{fontSize:'80px',marginBottom:'16px'}}>{iWon ? '🏆' : '💀'}</div>
+        <div className="winner-announcement" style={{color: iWon ? 'var(--yellow)' : 'var(--muted)'}}>
+          {iWon ? 'MENANG!' : 'KALAH!'}
+        </div>
+        <div style={{fontSize:'18px',fontWeight:900,marginBottom:'4px'}}>
+          🏆 {winnerName}
+        </div>
+        <div className="loser-text">
+          Mengalahkan {loserName}
+        </div>
+
+        <div style={{
+          display:'flex',gap:'16px',justifyContent:'center',
+          background:'var(--bg3)',borderRadius:'12px',padding:'16px',marginBottom:'28px'
+        }}>
+          <div style={{textAlign:'center'}}>
+            <div style={{fontSize:'24px',fontWeight:900,color:'var(--red)'}}>{room.player1_hp}</div>
+            <div style={{fontSize:'11px',color:'var(--muted)'}}>HP {room.player1_name}</div>
+          </div>
+          <div style={{color:'var(--border)',fontSize:'24px'}}>|</div>
+          <div style={{textAlign:'center'}}>
+            <div style={{fontSize:'24px',fontWeight:900,color:'#5b9cf6'}}>{room.player2_hp}</div>
+            <div style={{fontSize:'11px',color:'var(--muted)'}}>HP {room.player2_name}</div>
+          </div>
+        </div>
+
+        <button className="btn btn-danger" onClick={onPlayAgain} style={{marginBottom:'12px'}}>
+          🔄 Main Lagi!
+        </button>
+        <button className="btn btn-ghost" onClick={onHome}>
+          🏠 Kembali ke Home
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ===== MAIN APP =====
+function App() {
+  const [screen, setScreen] = useState('home');
+  const [room, setRoom] = useState(null);
+  const [mySlot, setMySlot] = useState(null);
+  const [myName, setMyName] = useState('');
+
+  const go = (s) => setScreen(s);
+
+  const handleRoomCreated = (r, slot, name) => {
+    setRoom(r); setMySlot(slot); setMyName(name);
+    go('waiting');
+  };
+
+  const handleRoomJoined = (r, slot, name) => {
+    setRoom(r); setMySlot(slot); setMyName(name);
+    go('waiting');
+  };
+
+  const handleGameStart = (r) => {
+    setRoom(r);
+    go('battle');
+  };
+
+  const handleGameOver = (r) => {
+    setRoom(r);
+    go('gameover');
+  };
+
+  const handlePlayAgain = () => {
+    setRoom(null); setMySlot(null); setMyName('');
+    go('home');
+  };
+
+  return (
+    <>
+      {screen === 'home' && (
+        <HomeScreen
+          onCreateRoom={() => go('create')}
+          onJoinRoom={() => go('join')}
+        />
+      )}
+      {screen === 'create' && (
+        <CreateRoomScreen
+          onBack={() => go('home')}
+          onRoomCreated={handleRoomCreated}
+        />
+      )}
+      {screen === 'join' && (
+        <JoinRoomScreen
+          onBack={() => go('home')}
+          onRoomJoined={handleRoomJoined}
+        />
+      )}
+      {screen === 'waiting' && room && (
+        <WaitingRoomScreen
+          room={room}
+          mySlot={mySlot}
+          myName={myName}
+          onGameStart={handleGameStart}
+        />
+      )}
+      {screen === 'battle' && room && (
+        <BattleScreen
+          key={room.id}
+          room={room}
+          mySlot={mySlot}
+          myName={myName}
+          onGameOver={handleGameOver}
+        />
+      )}
+      {screen === 'gameover' && room && (
+        <GameOverScreen
+          room={room}
+          mySlot={mySlot}
+          myName={myName}
+          onPlayAgain={handlePlayAgain}
+          onHome={handlePlayAgain}
+        />
+      )}
+    </>
+  );
+}
+
+ReactDOM.render(<App/>, document.getElementById('root'));
+</script>
+</body>
+</html>
