@@ -7,7 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;700;900&display=swap');
 
@@ -465,7 +465,7 @@ const { useState, useEffect, useRef, useCallback } = React;
 // ===== SUPABASE CONFIG =====
 const SUPABASE_URL = 'https://wnugxpdzimbwamguapms.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndudWd4cGR6aW1id2FtZ3VhcG1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxMjY1NzIsImV4cCI6MjA5NzcwMjU3Mn0.jTdXgJnrYh4Tf5zNHRa_xc3xK9ypkteMvyvBFM88OSs';
-const supabase = supabase_js.createClient(SUPABASE_URL, SUPABASE_ANON);
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // ===== CONSTANTS =====
 const FIGHTER_EMOJIS = ['🥷', '🧙', '⚔️', '🦊', '🐉', '🔥', '⚡', '🌊'];
